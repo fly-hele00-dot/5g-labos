@@ -11,7 +11,7 @@ over real N1/N2/N3/N4/N6/N9 interfaces.
 - **Why not Open5GS**: Open5GS has no actively-maintained Kubernetes Helm chart. free5GC implements the same 3GPP network functions (AMF/SMF/UPF/etc.) and has a proven, CI-tested Helm/kind path — same architecture concepts, different codebase.
 
 ## Infrastructure
-![Alt text](image.png)
+![Alt text](infra_map.png)
 
 
 ## Layout

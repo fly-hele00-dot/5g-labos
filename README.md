@@ -237,8 +237,3 @@ kube-state-metrics, and each kind node's kubelet (`/metrics` and
 `/metrics/cadvisor`, proxied through the K8s API — no separate
 node-exporter needed).
 
-## Next steps once this is stable
-- Multiple UEs / multiple PDU sessions (network slicing via NSSF)
-- Scale AMF/SMF replicas to exercise the HA behavior from your notes
-- Add a second UPF and test N9 (inter-UPF) traffic
-- Capture and inspect NGAP/PFCP/GTP-U/SBI traffic in Wireshark

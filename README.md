@@ -1,6 +1,6 @@
 # Internal 5G Core Lab
 
-CODE can be provided on a request !!!
+Complete code with scripts can be provided on a request !!!
 
 A local, single-host lab running a full 5G Standalone core (AMF, SMF, UPF,
 AUSF, UDM, UDR, PCF, NSSF, NRF, WebUI) plus a simulated RAN (gNB + UE), all

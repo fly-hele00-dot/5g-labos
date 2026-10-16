@@ -1,6 +1,8 @@
 # Internal 5G Core Lab
 
 Complete code with scripts can be provided on a request !!!
+Only part of the code is available in repository https://github.com/fly-hele00-dot/5G-network-pcap-visability-UI
+Infrastructure PCAP WEB UI 
 
 A local, single-host lab running a full 5G Standalone core (AMF, SMF, UPF,
 AUSF, UDM, UDR, PCF, NSSF, NRF, WebUI) plus a simulated RAN (gNB + UE), all

@@ -10,6 +10,10 @@ over real N1/N2/N3/N4/N6/N9 interfaces.
 - **Orchestration**: Helm charts from [Orange-OpenSource/towards5gs-helm](https://github.com/Orange-OpenSource/towards5gs-helm), on a local [kind](https://kind.sigs.k8s.io/) cluster
 - **Why not Open5GS**: Open5GS has no actively-maintained Kubernetes Helm chart. free5GC implements the same 3GPP network functions (AMF/SMF/UPF/etc.) and has a proven, CI-tested Helm/kind path — same architecture concepts, different codebase.
 
+## Infrastructure
+![Alt text](image.png)
+
+
 ## Layout
 
 ```
@@ -96,11 +100,11 @@ outside this host:
 |---|---|
 | kind node network (`corelab-net`, docker bridge) | `172.29.40.0/24` -- docker assigns `.0/25` only; nodes `.2`/`.3`, gateway `.1` |
 | Pod CIDR / Service CIDR | `10.212.0.0/16` / `10.213.0.0/16` |
-| N2 (ipvlan) | `10.47.60.248/29` -- AMF `.249`, gNB `.250`, cell2 gNB `.251` |
-| N3 (ipvlan) | `10.47.60.232/29` -- UPF `.233`, gNB `.236`, cell2 gNB `.234` |
-| N4 (ipvlan) | `10.47.60.240/29` -- UPF `.241`, SMF `.244` |
-| N9 (ipvlan, ULCL only) | `10.47.60.224/29` |
-| N6 (UPF -> data network) | UPF `172.29.40.200` on `corelab-net` |
+| N2 (ipvlan) | `10.10.60.248/29` -- AMF `.249`, gNB `.250`, cell2 gNB `.251` |
+| N3 (ipvlan) | `10.10.60.232/29` -- UPF `.233`, gNB `.236`, cell2 gNB `.234` |
+| N4 (ipvlan) | `10.10.60.240/29` -- UPF `.241`, SMF `.244` |
+| N9 (ipvlan, ULCL only) | `10.10.60.224/29` |
+| N6 (UPF -> data network) | UPF `10.10.40.200` on `corelab-net` |
 | UE pool (DNN `internet`) | `10.60.0.0/17` (first UE gets `10.60.0.1`) |
 
 - Kubernetes API server bound to `127.0.0.1` (`cluster/kind-cluster.yaml`).

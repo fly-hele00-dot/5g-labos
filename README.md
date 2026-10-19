@@ -38,62 +38,6 @@ $ kubectl -n core exec ran-ue-... -- ping -I uesimtun0 -c4 8.8.8.8
 4 packets transmitted, 4 received, 0% packet loss
 ```
 
-### Issues hit and fixed along the way (see comments in the scripts/charts for detail)
-- `bitnami/mongodb:4.4.4-debian-10-r0` no longer exists on Docker Hub (Bitnami
-  dropped old free-tier tags in 2025) -> repointed to `bitnamilegacy/mongodb:4.4.4`.
-- The bundled UPF image (`towards5gs/free5gc-upf:latest`, free5GC v3.2.1-era)
-  only accepts gtp5g `0.8.1 <= v < 0.9.0`, and that old gtp5g line doesn't
-  compile against this host's kernel without hand-patching two removed/changed
-  kernel APIs. Current gtp5g builds clean here, so **every** NF was bumped to
-  the current official `free5gc/<nf>:v4.2.3` image instead of patching gtp5g
-  -- mixing v3.2.1 and v4.2.3 NFs turned out not to interoperate cleanly (see
-  below), so the whole stack moved together.
-- gtp5g's own latest *release tag* (`v0.10.2` as of writing) still uses a
-  kernel struct field (`flowi4_tos`) this host's kernel renamed to
-  `flowi4_dscp` -- the fix has landed on gtp5g's `master` branch but not been
-  cut into a tag yet, so `01-install-gtp5g.sh` tracks `master` instead of a
-  pinned tag (see the comment there for the tradeoff, and check for a newer
-  tag periodically).
-- Each NF swap needed the same two mechanical fixes: absolute binary/cert/
-  config paths in `templates/<nf>-deployment.yaml` and
-  `templates/<nf>-configmap.yaml` (the old image's `WORKDIR` was
-  `/free5gc/<nf>`, binary at `/free5gc/<nf>/<nf>`; the current image is flat:
-  `WORKDIR /free5gc`, binary at `/free5gc/<nf>`), and AMF/SMF/UPF (which have
-  static ipvlan N-interface IPs) needed `strategy: Recreate` to avoid
-  Kubernetes' default RollingUpdate deadlocking on config/image changes (new
-  pod can't get the IP while the old one still holds it).
-- Config schema drift, fixed per NF: UDR needed `dbConnectorType: mongodb`
-  added and `info.version` bumped `1.0.2` -> `1.1.0` (validated strictly);
-  AMF needed a `t3555` timer block added; WebUI needed `nrfUri`/`webServer`/
-  `billingServer` added and `info.version` bumped `1.0.1` -> `1.0.3`.
-- **Subscriber auth data schema** (the deepest issue): current UDM/UDR use
-  the 3GPP TS 29.504-shaped `AuthenticationSubscription` -- flat
-  `encPermanentKey`/`encOpcKey` hex strings and a structured `sequenceNumber`
-  (`{sqn, sqnScheme}`) -- not the old nested `milenage`/`opc`/`permanentKey`
-  objects or a bare `sequenceNumber` string that `free5gc-dbpython`'s bundled
-  `add_subscribers.py` still writes (that image is old and can't be
-  rebuilt here). `scripts/04-deploy-ueransim.sh` now runs a MongoDB migration
-  right after provisioning to fix this up in place every time.
-- **NRF's registry is in-memory, not persisted** (`db.enabled: false`). Any
-  time NRF's pod restarts, every other NF's registration is silently gone
-  until *that* NF also restarts and re-registers -- surfaced as `AMF can not
-  select an AUSF by NRF` / `UDM discovery failed: no uri for nudm-ueau found`
-  / SMF-UPF PFCP association mismatches after a partial redeploy. If you see
-  errors like that after changing values and re-running
-  `03-deploy-free5gc.sh`, restart every NF pod once
-  (`kubectl -n core delete pod -l 'nf in (amf,ausf,smf,upf,udm,udr,pcf,nssf,webui)'`)
-  so they all re-register against the current NRF instance.
-
-- **Subscriber provisioning** (`04-deploy-ueransim.sh`): `add_subscribers.py`
-  defaults `--imsi` to `999700000000001` and overwrites every `ueId` with it,
-  so the UE's `imsi-208930000000003` was never actually provisioned by the
-  script. It now runs `clean` then `add -i imsi-208930000000003`, so re-runs
-  are idempotent.
-- **Second cell** (`ran-cell2`, TAC 2): AMF's `supportTaiList` now includes
-  TAC `000002` (otherwise NG Setup fails with "Cannot find Served TAI"), and
-  the gNB deployment uses `strategy: Recreate` (static N2/N3 ipvlan IPs, same
-  RollingUpdate deadlock as AMF/SMF/UPF).
-
 ## Addressing & exposure (private, local-only)
 
 Nothing uses the upstream/kind default ranges, and nothing is reachable from

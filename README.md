@@ -66,7 +66,7 @@ namespace `core`, Helm releases `core` (free5GC, pods `core-free5gc-<nf>-*`),
 `ran` (pods `ran-gnb-*`, `ran-ue-*`) and `ran-cell2` (second gNB, see
 `cluster/ueransim-tower2-values.generated.yaml` for its install command).
 
-## Prerequisites (already done on this machine)
+## Prerequisites 
 - 20 CPU, 15GB RAM, 349GB disk, VT-x present — plenty for this lab
 - `kubectl`, `kind`, `helm` installed and on PATH
 - Docker installed, `gtp5g` (built from `master`, see §Issues) built and loaded, `tcpdump`/`wireshark`/`mergecap` available
